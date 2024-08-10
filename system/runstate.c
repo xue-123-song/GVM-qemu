@@ -59,6 +59,7 @@
 #include "sysemu/sysemu.h"
 #include "sysemu/tpm.h"
 #include "trace.h"
+#include "interrupt-router.h"
 
 static NotifierList exit_notifiers =
     NOTIFIER_LIST_INITIALIZER(exit_notifiers);
@@ -592,6 +593,11 @@ void qemu_system_guest_pvshutdown(void)
 
 void qemu_system_reset_request(ShutdownCause reason)
 {
+    MachineState *ms = MACHINE(qdev_get_machine());
+    bool main_qemu = ms->main_qemu();
+    if (main_qemu) {
+        reset_forwarding();
+    }
     if (reboot_action == REBOOT_ACTION_SHUTDOWN &&
         reason != SHUTDOWN_CAUSE_SUBSYSTEM_RESET) {
         shutdown_requested = reason;
@@ -601,6 +607,7 @@ void qemu_system_reset_request(ShutdownCause reason)
     } else {
         reset_requested = reason;
     }
+    wakeup_remote_cpu();
     cpu_stop_current();
     qemu_notify_event();
 }
@@ -693,9 +700,15 @@ void qemu_system_shutdown_request_with_code(ShutdownCause reason,
 
 void qemu_system_shutdown_request(ShutdownCause reason)
 {
+    MachineState *ms = MACHINE(qdev_get_machine());
+    bool main_qemu = ms->main_qemu();
+    if (main_qemu) {
+        shutdown_forwarding();
+    }
     trace_qemu_system_shutdown_request(reason);
     replay_shutdown_request(reason);
     shutdown_requested = reason;
+    wakeup_remote_cpu();
     qemu_notify_event();
 }
 
@@ -875,6 +888,9 @@ void qemu_cleanup(int status)
     /* No more vcpu or device emulation activity beyond this point */
     vm_shutdown();
     replay_finish();
+
+    /* stop routers and close connection */ 
+    disconnect_io_router();
 
     /*
      * We must cancel all block jobs while the block layer is drained,
