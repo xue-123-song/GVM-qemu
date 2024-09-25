@@ -219,7 +219,7 @@ static void do_hash_operation(AspeedHACEState *s, int algo, bool sg_mode,
 
             plen = len & SG_LIST_LEN_MASK;
             haddr = address_space_map(&s->dram_as, addr, &plen, false,
-                                      MEMTXATTRS_UNSPECIFIED);
+                                      MEMTXATTRS_UNSPECIFIED, true, NULL);
             if (haddr == NULL) {
                 qemu_log_mask(LOG_GUEST_ERROR, "%s: qcrypto failed\n", __func__);
                 return;
@@ -236,7 +236,7 @@ static void do_hash_operation(AspeedHACEState *s, int algo, bool sg_mode,
         hwaddr len = s->regs[R_HASH_SRC_LEN];
 
         haddr = address_space_map(&s->dram_as, s->regs[R_HASH_SRC],
-                                  &len, false, MEMTXATTRS_UNSPECIFIED);
+                                  &len, false, MEMTXATTRS_UNSPECIFIED, true, NULL);
         if (haddr == NULL) {
             qemu_log_mask(LOG_GUEST_ERROR, "%s: qcrypto failed\n", __func__);
             return;
@@ -280,7 +280,7 @@ static void do_hash_operation(AspeedHACEState *s, int algo, bool sg_mode,
     for (; i > 0; i--) {
         address_space_unmap(&s->dram_as, iov[i - 1].iov_base,
                             iov[i - 1].iov_len, false,
-                            iov[i - 1].iov_len);
+                            iov[i - 1].iov_len, true);
     }
 
     /*
