@@ -30,9 +30,6 @@
 #include "sysemu/block-backend.h"
 #include "qapi/qapi-commands-control.h"
 #include "chardev-internal.h"
-#include "interrupt-router.h"
-#include "qom/object_interfaces.h"
-#include "hw/boards.h"
 
 /* MUX driver for serial I/O splitting */
 
@@ -161,11 +158,12 @@ static int mux_proc_byte(Chardev *chr, MuxChardev *d, int ch)
             {
                  const char *term =  "QEMU: Terminated\n\r";
                  qemu_chr_write_all(chr, (uint8_t *)term, strlen(term));
-                 MachineState *ms = MACHINE(qdev_get_machine());
-                 if (ms->smp.cpus != ms->local_cpus) {
-                    exit_forwarding();
-                    disconnect_io_router();
-                 } 
+                //  Need to do: add force exit
+                //  MachineState *ms = MACHINE(qdev_get_machine());
+                //  if (ms->smp.cpus != ms->local_cpus) {
+                //     exit_forwarding();
+                //     disconnect_io_router();
+                //  } 
                  qmp_quit(NULL);
                  break;
             }
