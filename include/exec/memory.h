@@ -3006,6 +3006,8 @@ static inline bool memory_access_is_direct(MemoryRegion *mr, bool is_write)
 #include "sysemu/kvm.h"
 #include "sysemu/sysemu.h"
 
+extern bool is_local_shm(void);
+
 /**
  * address_space_read: read from an address space.
  *
@@ -3029,7 +3031,6 @@ MemTxResult address_space_read(AddressSpace *as, hwaddr addr,
     void *ptr;
     MemoryRegion *mr;
     FlatView *fv;
-    MachineState *ms = MACHINE(qdev_get_machine());
 
     if (__builtin_constant_p(len)) {
         if (len) {
@@ -3038,7 +3039,7 @@ MemTxResult address_space_read(AddressSpace *as, hwaddr addr,
             l = len;
             mr = flatview_translate(fv, addr, &addr1, &l, false, attrs);
             if (len == l && memory_access_is_direct(mr, false) &&
-                (!kvm_enabled() || ms->local_cpus == ms->smp.cpus || ms->shm_path != NULL)) {
+                (!kvm_enabled() || is_local_shm())) {
                 ptr = qemu_map_ram_ptr(mr->ram_block, addr1);
                 memcpy(buf, ptr, len);
             } else {
