@@ -53,7 +53,7 @@
 #include "sysemu/stats.h"
 #include "hw/core/cpu.h"
 #include "interrupt-router.h"
-#include "apic_internal.h"
+#include "hw/i386/apic_internal.h"
 
 /* This check must be after config-host.h is included */
 #ifdef CONFIG_EVENTFD
