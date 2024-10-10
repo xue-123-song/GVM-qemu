@@ -3302,7 +3302,7 @@ void *address_space_map(AddressSpace *as,
 
     trace_address_space_map(as, addr, len, is_write, *(uint32_t *) &attrs);
 
-    if (*is_dsm) {
+    if (is_dsm) {
         *is_dsm  = false;
     }
 
