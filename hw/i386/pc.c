@@ -838,6 +838,7 @@ void pc_memory_init(PCMachineState *pcms,
     linux_boot = (machine->kernel_filename != NULL);
 
     /* Start DSM */
+    printf("start DSM\n");
     if (machine->local_cpus != machine->smp.cpus && !machine->shm_path) {
         if (kvm_enabled() && kvm_check_extension(kvm_state, KVM_CAP_X86_DSM)) {
             params.dsm_index = machine->local_cpu_start_index / machine->local_cpus;
@@ -1254,8 +1255,8 @@ void pc_basic_device_init(struct PCMachineState *pcms,
     }
 
     /* Super I/O */
-    pc_superio_init(isa_bus, create_fdctrl, pcms->i8042_enabled,
-                    pcms->vmport != ON_OFF_AUTO_ON);
+     pc_superio_init(isa_bus, create_fdctrl, pcms->i8042_enabled,
+                     pcms->vmport != ON_OFF_AUTO_ON);
 }
 
 void pc_nic_init(PCMachineClass *pcmc, ISABus *isa_bus, PCIBus *pci_bus)
