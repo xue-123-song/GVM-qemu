@@ -133,8 +133,6 @@ static void kvm_handle_remote_io(uint16_t port, MemTxAttrs attrs, void *data, in
 
 static void *io_router_loop(void *arg)
 {
-    printf("enter router_loop\n");
-    fflush(stdout);
     uint8_t type;
     int cpu_index;
     Error *err = NULL;

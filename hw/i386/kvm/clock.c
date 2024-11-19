@@ -240,8 +240,6 @@ static void kvmclock_vm_state_change(void *opaque, bool running,
 uint64_t kvmclock_getclock(void) {
     struct kvm_clock_data data;
     int ret;
-    printf("enter kvmclock_getclock");
-
     /* kvm_synchronize_all_tsc(); */
 
     ret = kvm_vm_ioctl(kvm_state, KVM_GET_CLOCK, &data);
