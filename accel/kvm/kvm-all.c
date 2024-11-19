@@ -3104,10 +3104,10 @@ int kvm_cpu_exec(CPUState *cpu)
 
         trace_kvm_run_exit(cpu->cpu_index, run->exit_reason);
         switch (run->exit_reason) {
-        case KVM_EXIT_DSM_SEND_IRQ:
-            printf("irq_val %d\n",run->lapic_irq.val);
+        case KVM_EXIT_DAPIC:
+            printf("KVM_EXIT_DAPIC cpu_index:%d id:%d offset:%d\n", cpu->cpu_index, run->dapic.local_cpuid, run->dapic.offset);
             fflush(stdout);
-            startup_forwarding(cpu->cpu_index,run->lapic_irq.val, run->lapic_irq.val2);
+            startup_forwarding(run->dapic.local_cpuid, run->dapic.offset);
             ret = 0;
             break;
         case KVM_EXIT_IO:
@@ -4401,16 +4401,15 @@ int kvm_create_guest_memfd(uint64_t size, uint64_t flags, Error **errp)
     return fd;
 }
 
-int kvm_dipi_forwarding(int cpu_index, uint32_t val, uint32_t val2)
+int kvm_dapic_forwarding(int cpu_index, uint32_t offset)
 {
     int fd;
-    struct kvm_dipi_params dipi = {
+    struct kvm_dapic_params dapic = {
         .vcpu_id = cpu_index,
-        .val = val,
-        .val2 = val2,
+        .offset = offset,
     };
 
-    fd = kvm_vm_ioctl(kvm_state, KVM_DSM_IPI, &dipi);
+    fd = kvm_vm_ioctl(kvm_state, KVM_DSM_APIC, &dapic);
 
     return fd;
 }

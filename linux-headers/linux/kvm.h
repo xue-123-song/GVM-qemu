@@ -178,7 +178,7 @@ struct kvm_xen_exit {
 #define KVM_EXIT_NOTIFY           37
 #define KVM_EXIT_LOONGARCH_IOCSR  38
 #define KVM_EXIT_MEMORY_FAULT     39
-#define KVM_EXIT_DSM_SEND_IRQ     40
+#define KVM_EXIT_DAPIC     40
 
 /* For KVM_EXIT_INTERNAL_ERROR */
 /* Emulate instruction failed. */
@@ -217,9 +217,9 @@ struct kvm_run {
 #endif
 	union {
 		struct {
-			__u32 val;
-			__u32 val2;
-		} lapic_irq;
+			__u32 local_cpuid;
+			__u32 offset;
+		} dapic;
 		/* KVM_EXIT_UNKNOWN */
 		struct {
 			__u64 hardware_exit_reason;
@@ -1271,12 +1271,11 @@ struct kvm_dsm_mempin {
 };
 #define KVM_DSM_MEMPIN            _IOW(KVMIO,  0xf2, struct kvm_dsm_mempin)
 
-struct kvm_dipi_params {
+struct kvm_dapic_params {
 	int vcpu_id;
-	__u32 val;
-	__u32 val2;
+	__u32 offset;
 };
-#define KVM_DSM_IPI               _IOW(KVMIO, 0xf3, struct kvm_dipi_params)
+#define KVM_DSM_APIC             _IOW(KVMIO, 0xf3, struct kvm_dapic_params)
 
 /*
  * ioctls for vcpu fds
